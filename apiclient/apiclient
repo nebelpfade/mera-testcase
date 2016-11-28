@@ -1,0 +1,34 @@
+#!/bin/sh
+
+#Global vars
+fqdn=""
+result=""
+errnum=""
+
+#Set up FQDN
+if [ -z "${CUSTOM_FQDN}" ] || [ "${CUSTOM_FQDN}" = "" ];then
+  fqdn=$(hostname -f)
+else
+  fqdn="${CUSTOM_FQDN}"
+fi
+#Set up API server
+if [ -z "${API_HOST}" ] || [ "${API_HOST}" = "" ];then
+  apiserver="http://apiserver"
+else
+  apiserver="${API_HOST}"
+fi
+
+#Generate request data
+data="{\"server_fqdn\":\"${fqdn}\"}"
+#Get current datetime for logging
+now=$(date +'%d/%m/%Y %H:%M')
+
+#Send data by cURL
+result=$(curl -H "Content-Type: application/json" -sSLX POST -d "${data}" "${apiserver}" 2>&1)
+errnum=$?
+if [ "${errnum}" = "0" ];then
+  printf '[%s] heartbeat package: "%s" was sent\n' "${now}" "${data}"
+else
+  printf '[%s] heartbeat package: "%s" was not sent with error: "%s"\n' "${now}" "${data}" "${result}"
+  exit ${errnum}
+fi

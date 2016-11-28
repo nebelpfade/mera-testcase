@@ -1,0 +1,25 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_USER=uptime
+      - POSTGRES_PASSWORD=MeraUptimeTestCase
+      - POSTGRES_DB=uptime
+  apiserver:
+    build: ./apiserver
+    links: 
+      - db:db
+  apiclient1:
+    build: ./apiclient
+    environment:
+      - API_HOST=http://apiserver
+    links:
+      - apiserver:apiserver
+  apiclient2:
+    build: ./apiclient
+    environment:
+      - API_HOST=http://apiserver
+    links:
+      - apiserver:apiserver
+
